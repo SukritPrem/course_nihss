@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIHSS Course</title>
+    
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            font-family: 'Segoe UI', sans-serif;
+            scroll-behavior: smooth;
+            /* Lock scrolling until verified */
+            overflow-y: hidden; 
+            height: 100%;
+        }
+
+        section {
+            min-height: 100vh; /* Changed from height to min-height */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Initial State: Hide Page 2 and 3 */
+        #page2, #page3 { 
+            display: none; 
+        }
+
+        #page1 { background-color: #f0f4f8; }
+        #page2 { background-color: #ffffff; border-top: 2px solid #eee; }
+        #page3 { background-color: #e8f5e9; border-top: 2px solid #eee; }
+
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .qr-code { width: 220px; margin: 20px; border-radius: 10px; }
+        .video-container { width: 85%; max-width: 800px; aspect-ratio: 16/9; margin: 20px 0; }
+        iframe { width: 100%; height: 100%; border-radius: 15px; border: none; }
+        
+        input { padding: 12px; width: 250px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 12px 25px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<section id="page1">
+    <div class="card">
+        <h1>1. Pre-test</h1>
+        <img src="แบบทดสอบก่อนเรียน.png" alt="Pre-test QR" class="qr-code">
+        <p>Scan the QR above to complete the Pre-test.</p>
+        <hr style="margin: 20px 0; opacity: 0.2;">
+        
+        <h3>Verify Identity to Unlock</h3>
+        <input type="text" id="firstName"  placeholder="First Name">
+        <input type="text" id="lastName"   placeholder="Last Name">
+        <br>
+        <button id="verifyBtn" onclick="verifyUser()">Verify & Start Video</button>
+    </div>
+</section>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwx_UdW_MehZSLwUjfbJ_YbQbaiLS6piNxdsDLQoYayHpxdDEk_ZmAzfIMJ92_iMWbzrA/exec";
+
+    async function verifyUser() {
+        const fname = document.getElementById('firstName').value.trim();
+        const lname = document.getElementById('lastName').value.trim();
+        const btn = document.getElementById('verifyBtn');
+        
+        if (!fname || !lname) {
+            alert("Please enter both First Name and Last Name.");
+            return;
+        }
+
+        btn.innerText = "Checking Excel...";
+        btn.disabled = true;
+
+        try {
+            // Sending both names to your Google Script
+            const query = `?fname=${encodeURIComponent(fname)}&lname=${encodeURIComponent(lname)}`;
+            const response = await fetch(SCRIPT_URL + query);
+            const result = await response.text();
+
+            if (result === "FOUND") {
+                unlockEverything();
+                btn.innerText = "Complete"
+            } else {
+                alert("Access Denied: Name not found in the list.");
+                btn.innerText = "Verify & Start Video";
+                btn.disabled = false;
+            }
+        } catch (error) {
+            alert("API Error. Please check your connection.");
+            btn.disabled = false;
+            btn.innerText = "Verify & Start Video";
+        }
+    }
+
+    function unlockEverything() {
+// 1. Identify the sections
+    const page1 = document.getElementById('page1');
+    const page2 = document.getElementById('page2');
+    const page3 = document.getElementById('page3');
+
+    // 2. Reveal them
+    page2.style.display = 'flex';
+    page3.style.display = 'flex';
+        
+        // 3. IMPORTANT: Reset height and overflow so the page can actually grow
+    document.body.style.overflowY = 'auto';
+    document.documentElement.style.overflowY = 'auto';
+    document.body.style.height = 'auto'; 
+    document.documentElement.style.height = 'auto';
+
+    // 4. Wait a tiny bit for the browser to calculate the new page length
+    setTimeout(() => {
+        page2.scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+        });
+    }, 150); // 150ms is the "sweet spot" for most browsers
+        // setTimeout(() => {
+        // window.scrollTo({
+        //     top: window.innerHeight, // Move down exactly one screen height
+        //     behavior: 'smooth'       // This creates the "slide" effect
+        // });
+        // }, 100);
+        // window.scrollTo({
+        //     top: window.innerHeight,
+        //     behavior: 'smooth'
+        // });
+    }
+</script>
+    <section id="page2">
+        <h1>2. NIHSS Training Video</h1>
+        <div class="video-container">
+            <iframe id="nihssVideo" src="https://www.youtube.com/embed/FYWB1K--DK8" allowfullscreen></iframe>
+        </div>
+        <p style="font-size: 1.2rem; color: #666;">Step 2 of 3: Watch carefully before the Post-test ↓</p>
+    </section>
+
+    <section id="page3">
+        <h1>3. Post-test</h1>
+        <div class="card">
+            <img src="แบบทดสอบหลังเรียน.png" alt="Post-test QR" class="qr-code">
+            <p>Scan to complete your certification.</p>
+        </div>
+    </section>
+
+</body>
+</html>
