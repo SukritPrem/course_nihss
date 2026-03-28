@@ -3,110 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NIHSS Course</title>
+    <title>NIHSS Course Verification</title>
     <style>
-        /* ตั้งค่าพื้นฐาน */
-        body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            scroll-behavior: smooth;
-        }
-
-        /* ตกแต่งส่วนหน้า (Sections) */
-        section {
-            height: 100vh; /* ให้แต่ละหน้าเต็มจอพอดี */
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            border-bottom: 2px solid #eee;
-        }
-
-        /* สีพื้นหลังแต่ละหน้า */
-        #page1 { background-color: #f0f4f8; }
-        #page2 { background-color: #ffffff; }
-        #page3 { background-color: #e8f5e9; }
-
-        h1 { color: #333; margin-bottom: 20px; }
-
-        /* จัดการรูป QR Code */
-        .qr-code {
-            width: 250px;
-            height: 250px;
-            border: 5px solid #fff;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            border-radius: 10px;
-        }
-
-        /* จัดการ Video Container ให้ดูดี */
-        .video-container {
-            width: 80%;
-            max-width: 800px;
-            aspect-ratio: 16 / 9;
-        }
-
-        iframe {
-            width: 100%;
-            height: 100%;
-            border-radius: 15px;
-            border: none;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-
-        /* ปุ่มนำทาง (Navigation) */
-        .nav-dots {
-            position: fixed;
-            right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        .nav-dots a {
-            display: block;
-            width: 12px;
-            height: 12px;
-            background: #bbb;
-            margin: 15px 0;
-            border-radius: 50%;
-            text-decoration: none;
-        }
+        body, html { margin: 0; padding: 0; width: 100%; font-family: sans-serif; scroll-behavior: smooth; overflow: hidden; }
+        section { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+        #page2, #page3 { display: none; } /* Locked by default */
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 80%; max-width: 400px; }
+        .qr-code { width: 200px; margin: 20px; }
+        input { padding: 10px; width: 80%; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:disabled { background: #ccc; }
+        .loading { color: orange; display: none; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="nav-dots">
-        <a href="#page1"></a>
-        <a href="#page2"></a>
-        <a href="#page3"></a>
-    </div>
-
     <section id="page1">
-        <h1>Pre-test</h1>
-        <img src="แบบทดสอบก่อนเรียน.png" alt="QR Code 1" class="qr-code">
-        <p>Scroll down to watch the video</p>
-    </section>
-
-    <section id="page2">
-        <h1>How to Perform an NIHSS Assessment</h1>
-        <div class="video-container">
-        <iframe src="https://www.youtube.com/embed/FYWB1K--DK8" 
-                allowfullscreen>
-        </iframe>
-        <p style="margin-top: 10px;">
-            <a href="https://www.youtube.com/watch?v=FYWB1K--DK8" target="_blank">
-            Link to Youtube
-            </a>
-        </p>
-        <p>Scroll down to Post test</p>
+        <div class="card">
+            <h1>Step 1: Pre-test</h1>
+            <img src="แบบทดสอบก่อนเรียน.png" alt="Pre-test QR" class="qr-code">
+            <p>Scan and complete the test first.</p>
+            <hr>
+            <h3>Verify Identity</h3>
+            <input type="text" id="userName" placeholder="Enter Full Name (from Excel)">
+            <button id="verifyBtn" onclick="verifyUser()">Check Name & Unlock Video</button>
+            <p id="statusMsg" class="loading">Checking database...</p>
         </div>
     </section>
 
-    <section id="page3">
-        <h1>Post-test</h1>
-        <img src="แบบทดสอบหลังเรียน.png" alt="QR Code 2" class="qr-code">
+    <section id="page2" style="background-color: #f8f9fa;">
+        <h1>Step 2: Training Video</h1>
+        <div style="width: 80%; max-width: 800px; aspect-ratio: 16/9;">
+            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/FYWB1K--DK8" frameborder="0" allowfullscreen></iframe>
+        </div>
+        <p>Scroll down for Post-test</p>
     </section>
 
+    <section id="page3" style="background-color: #e8f5e9;">
+        <h1>Step 3: Post-test</h1>
+        <img src="แบบทดสอบหลังเรียน.png" alt="Post-test QR" class="qr-code">
+    </section>
+
+    <script>
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyhrMHlcDkwy8WdgIxGS8EbuWK78LQjg9NUggtydUN0GPcatSNyxCu65aS5uc23MC5u3Q/exec";
+
+        async function verifyUser() {
+            const name = document.getElementById('userName').value.trim();
+            const btn = document.getElementById('verifyBtn');
+            const status = document.getElementById('statusMsg');
+
+            if (!name) {
+                alert("Please enter your name.");
+                return;
+            }
+
+            btn.disabled = true;
+            status.style.display = "block";
+            status.innerText = "Searching for " + name + "...";
+
+            try {
+                // Query the Google Sheet API
+                const response = await fetch(`${SCRIPT_URL}?name=${encodeURIComponent(name)}`);
+                const result = await response.text();
+
+                if (result === "FOUND") {
+                    alert("Verification Successful! Video Unlocked.");
+                    unlockContent();
+                } else {
+                    alert("Name not found in Excel. Please ensure you are registered.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Connection Error. Please try again.");
+            } finally {
+                btn.disabled = false;
+                status.style.display = "none";
+            }
+        }
+
+        function unlockContent() {
+            document.getElementById('page2').style.display = 'flex';
+            document.getElementById('page3').style.display = 'flex';
+            document.body.style.overflow = 'auto'; // Enable scrolling
+            window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+        }
+    </script>
 </body>
 </html>
