@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3 Pages Presentation</title>
+    <style>
+        /* ตั้งค่าพื้นฐาน */
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        /* ตกแต่งส่วนหน้า (Sections) */
+        section {
+            height: 100vh; /* ให้แต่ละหน้าเต็มจอพอดี */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            border-bottom: 2px solid #eee;
+        }
+
+        /* สีพื้นหลังแต่ละหน้า */
+        #page1 { background-color: #f0f4f8; }
+        #page2 { background-color: #ffffff; }
+        #page3 { background-color: #e8f5e9; }
+
+        h1 { color: #333; margin-bottom: 20px; }
+
+        /* จัดการรูป QR Code */
+        .qr-code {
+            width: 250px;
+            height: 250px;
+            border: 5px solid #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+        }
+
+        /* จัดการ Video Container ให้ดูดี */
+        .video-container {
+            width: 80%;
+            max-width: 800px;
+            aspect-ratio: 16 / 9;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        /* ปุ่มนำทาง (Navigation) */
+        .nav-dots {
+            position: fixed;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .nav-dots a {
+            display: block;
+            width: 12px;
+            height: 12px;
+            background: #bbb;
+            margin: 15px 0;
+            border-radius: 50%;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="nav-dots">
+        <a href="#page1"></a>
+        <a href="#page2"></a>
+        <a href="#page3"></a>
+    </div>
+
+    <section id="page1">
+        <h1>หน้าแรก: สแกนที่นี่</h1>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=Page1" alt="QR Code 1" class="qr-code">
+        <p>เลื่อนลงเพื่อดูวิดีโอ</p>
+    </section>
+
+    <section id="page2">
+        <h1>หน้าที่สอง: วิดีโอแนะนำ</h1>
+        <div class="video-container">
+        <iframe src="https://www.youtube.com/embed/tgbNymZ7vqY" 
+                allowfullscreen>
+        </iframe>
+        <p style="margin-top: 10px;">
+            <a href="https://www.youtube.com/watch?v=FYWB1K--DK8" target="_blank">
+            คลิกที่นี่เพื่อรับชมบน YouTube (หากวิดีโอไม่เล่น)
+            </a>
+        </p>
+        </div>
+    </section>
+
+    <section id="page3">
+        <h1>หน้าสุดท้าย: ขอบคุณครับ</h1>
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=Page3" alt="QR Code 2" class="qr-code">
+        <p>สแกนเพื่อรับข้อมูลเพิ่มเติม</p>
+    </section>
+
+</body>
+</html>
