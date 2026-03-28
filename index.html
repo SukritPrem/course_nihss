@@ -3,89 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NIHSS Course Verification</title>
+    <title>NIHSS Course</title>
     <style>
-        body, html { margin: 0; padding: 0; width: 100%; font-family: sans-serif; scroll-behavior: smooth; overflow: hidden; }
-        section { height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-        #page2, #page3 { display: none; } /* Locked by default */
-        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 80%; max-width: 400px; }
-        .qr-code { width: 200px; margin: 20px; }
-        input { padding: 10px; width: 80%; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 5px; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        button:disabled { background: #ccc; }
-        .loading { color: orange; display: none; margin-top: 10px; }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            font-family: 'Segoe UI', sans-serif;
+            scroll-behavior: smooth;
+            /* Lock scrolling until verified */
+            overflow-y: hidden; 
+            height: 100%;
+        }
+
+        section {
+            min-height: 100vh; /* Changed from height to min-height */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        /* Initial State: Hide Page 2 and 3 */
+        #page2, #page3 { 
+            display: none; 
+        }
+
+        #page1 { background-color: #f0f4f8; }
+        #page2 { background-color: #ffffff; border-top: 2px solid #eee; }
+        #page3 { background-color: #e8f5e9; border-top: 2px solid #eee; }
+
+        .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .qr-code { width: 220px; margin: 20px; border-radius: 10px; }
+        .video-container { width: 85%; max-width: 800px; aspect-ratio: 16/9; margin: 20px 0; }
+        iframe { width: 100%; height: 100%; border-radius: 15px; border: none; }
+        
+        input { padding: 12px; width: 250px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 12px 25px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <section id="page1">
         <div class="card">
-            <h1>Step 1: Pre-test</h1>
+            <h1>1. Pre-test</h1>
             <img src="แบบทดสอบก่อนเรียน.png" alt="Pre-test QR" class="qr-code">
-            <p>Scan and complete the test first.</p>
-            <hr>
-            <h3>Verify Identity</h3>
-            <input type="text" id="userName" placeholder="Enter Full Name (from Excel)">
-            <button id="verifyBtn" onclick="verifyUser()">Check Name & Unlock Video</button>
-            <p id="statusMsg" class="loading">Checking database...</p>
+            <p>Scan the QR above to complete the Pre-test.</p>
+            <hr style="margin: 20px 0; opacity: 0.2;">
+            <h3>Verify Name to Unlock Video</h3>
+            <input type="text" id="userName" placeholder="Full Name (Check Excel)">
+            <br>
+            <button id="verifyBtn" onclick="verifyUser()">Verify & Start Video</button>
         </div>
     </section>
 
-    <section id="page2" style="background-color: #f8f9fa;">
-        <h1>Step 2: Training Video</h1>
-        <div style="width: 80%; max-width: 800px; aspect-ratio: 16/9;">
-            <iframe width="100%" height="100%" src="https://www.youtube.com/embed/FYWB1K--DK8" frameborder="0" allowfullscreen></iframe>
+    <section id="page2">
+        <h1>2. NIHSS Training Video</h1>
+        <div class="video-container">
+            <iframe id="nihssVideo" src="https://www.youtube.com/embed/FYWB1K--DK8" allowfullscreen></iframe>
         </div>
-        <p>Scroll down for Post-test</p>
+        <p style="font-size: 1.2rem; color: #666;">Step 2 of 3: Watch carefully before the Post-test ↓</p>
     </section>
 
-    <section id="page3" style="background-color: #e8f5e9;">
-        <h1>Step 3: Post-test</h1>
-        <img src="แบบทดสอบหลังเรียน.png" alt="Post-test QR" class="qr-code">
+    <section id="page3">
+        <h1>3. Post-test</h1>
+        <div class="card">
+            <img src="แบบทดสอบหลังเรียน.png" alt="Post-test QR" class="qr-code">
+            <p>Scan to complete your certification.</p>
+        </div>
     </section>
 
     <script>
+        // REPLACE THIS with your actual Google Apps Script URL
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyhrMHlcDkwy8WdgIxGS8EbuWK78LQjg9NUggtydUN0GPcatSNyxCu65aS5uc23MC5u3Q/exec";
 
         async function verifyUser() {
-            const name = document.getElementById('userName').value.trim();
+            const nameInput = document.getElementById('userName').value.trim();
             const btn = document.getElementById('verifyBtn');
-            const status = document.getElementById('statusMsg');
 
-            if (!name) {
+            if (!nameInput) {
                 alert("Please enter your name.");
                 return;
             }
 
+            btn.innerText = "Checking Excel...";
             btn.disabled = true;
-            status.style.display = "block";
-            status.innerText = "Searching for " + name + "...";
 
             try {
-                // Query the Google Sheet API
-                const response = await fetch(`${SCRIPT_URL}?name=${encodeURIComponent(name)}`);
+                const response = await fetch(`${SCRIPT_URL}?name=${encodeURIComponent(nameInput)}`);
                 const result = await response.text();
 
                 if (result === "FOUND") {
-                    alert("Verification Successful! Video Unlocked.");
-                    unlockContent();
+                    unlockEverything();
                 } else {
-                    alert("Name not found in Excel. Please ensure you are registered.");
+                    alert("Access Denied: Name not found in the Excel list.");
+                    btn.innerText = "Verify & Start Video";
+                    btn.disabled = false;
                 }
             } catch (error) {
-                console.error(error);
-                alert("Connection Error. Please try again.");
-            } finally {
+                alert("API Error. Make sure your Script URL is correct and deployed as 'Anyone'.");
                 btn.disabled = false;
-                status.style.display = "none";
+                btn.innerText = "Verify & Start Video";
             }
         }
 
-        function unlockContent() {
+        function unlockEverything() {
+            // 1. Show BOTH sections
             document.getElementById('page2').style.display = 'flex';
             document.getElementById('page3').style.display = 'flex';
-            document.body.style.overflow = 'auto'; // Enable scrolling
-            window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+
+            // 2. Enable scrolling for the whole page
+            document.body.style.overflowY = 'auto';
+            document.documentElement.style.overflowY = 'auto';
+
+            // 3. Scroll smoothly to the video
+            window.scrollTo({
+                top: window.innerHeight,
+                behavior: 'smooth'
+            });
         }
     </script>
 </body>
