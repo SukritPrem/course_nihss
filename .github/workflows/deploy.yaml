@@ -1,37 +1,36 @@
-name: Inject Secrets and Deploy
+# name: Inject Secrets and Deploy
 
-on:
-  push:
-    branches:
-      - main  # Runs every time you push to the main branch
+# on:
+#   push:
+#     branches:
+#       - main  # Runs every time you push to the main branch
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    # ADD THIS SECTION:
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     # ADD THIS SECTION:
+#     permissions:
+#       contents: write
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
         
-      - name: Check Current Directory
-        run: |
-          echo "Current directory is: $(pwd)"
-          echo "Files in this directory:"
-          ls -R
-      - name: Inject Google Script URL
-        run: |
-          # This replaces the placeholder with your actual secret
-          sed -i "s|REPLACE_WITH_G_SCRIPT_URL|${{ secrets.G_SCRIPT_URL }}|g" index.html 
-      - name: Debug Partial Secret
-        run: |
-          # Shows the first few characters of the line to confirm it's not the placeholder
-          grep "const SCRIPT_URL =" index.html | cut -c 1-30
-          
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: .  # This MUST be '.' to include the modified index.html
-          publish_branch: gh-pages
+#       - name: Check Current Directory
+#         run: |
+#           echo "Current directory is: $(pwd)"
+#           echo "Files in this directory:"
+#           ls -R
+#       - name: Inject Google Script URL
+#         run: |
+#           # This replaces the placeholder with your actual secret
+#           sed -i "s|REPLACE_WITH_G_SCRIPT_URL|${{ secrets.G_SCRIPT_URL }}|g" index.html 
+#       - name: Debug Partial Secret
+#         run: |
+#           # Shows the first few characters of the line to confirm it's not the placeholder
+#           grep "const SCRIPT_URL =" index.html | cut -c 1-30
+#       - name: Deploy to GitHub Pages
+#         uses: peaceiris/actions-gh-pages@v3
+#         with:
+#           github_token: ${{ secrets.GITHUB_TOKEN }}
+#           publish_dir: .  # This MUST be '.' to include the modified index.html
+#           publish_branch: gh-pages
